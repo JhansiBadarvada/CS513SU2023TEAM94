@@ -33,7 +33,7 @@ import json
 # 
 # **Rationale:** Trimming the dish name whitespace will allow us to more accurately find duplicate dishes and better track prices over time. Converting prices to numbers will help us run calculations that can't be run on a string.
 
-# In[2]:
+# In[13]:
 
 
 """[
@@ -87,7 +87,7 @@ import json
 # 
 # **Rationale:** Converting prices and dates will help us run calculations that can't be run on a string. We trim times from menu item dates so that we can assess dish price with less granularity. This way we can group menu items by their date instead of having menu items all at different times.
 
-# In[3]:
+# In[14]:
 
 
 """[
@@ -185,7 +185,7 @@ import json
 # @OUT cleaned_dish_data  @URI file:{file_path}/dishcleaned.csv
 # @OUT cleaned_menu_item_data  @URI file:{file_path}/menu_item_cleaned.csv
 
-# In[5]:
+# In[15]:
 
 
 import pandas as pd
@@ -206,7 +206,7 @@ menu_item_df = pd.read_csv("../open_refine_cleaned/Menu-Item.csv")
 # @IN Price @AS menu_item_data @URI file:{file_path}/open_refine_cleaned/Menu-Item.csv
 # @OUT data @AS menu_item_clean_price
 
-# In[6]:
+# In[16]:
 
 
 menu_item_df.dropna(subset=['price'], inplace=True)
@@ -226,7 +226,7 @@ menu_item_df.dropna(subset=['created_at'], inplace=True)
 # 
 # **Rationale:** Similar to trimming the dish names, converting the dish names to title case will allow us to more accurately detect duplipcates and merge them for better price tracking.
 
-# In[7]:
+# In[17]:
 
 
 dish_df["name"] = dish_df["name"].str.title()
@@ -246,7 +246,7 @@ dish_df["name"] = dish_df["name"].str.title()
 # @IN dish @AS dish_title_case
 # @OUT data @AS dish_unique
 
-# In[8]:
+# In[18]:
 
 
 ids = dish_df["name"]
@@ -276,7 +276,7 @@ dish_df = dish_df[~dish_df['id'].isin(ids_to_drop)]
 # @IN Price @AS menu_item_clean_price
 # @OUT data @AS menu_item_valid_price
 
-# In[9]:
+# In[19]:
 
 
 q_low = menu_item_df["price"].quantile(0.10)
@@ -299,7 +299,7 @@ menu_item_df = menu_item_df[(menu_item_df["price"] < q_hi + mul * iqr) & (menu_i
 # @IN Price @AS menu_item_valid_price
 # @OUT data @AS menu_item_normalized_price
 
-# In[10]:
+# In[20]:
 
 
 menu_item_df["price"] = (menu_item_df["price"] - menu_item_df["price"].min()) / (menu_item_df["price"].max() - menu_item_df["price"].min())
@@ -317,7 +317,7 @@ menu_item_df["price"] = (menu_item_df["price"] - menu_item_df["price"].min()) / 
 # @IN dish @AS dish_unique
 # @OUT data @AS dish_valid
 
-# In[11]:
+# In[21]:
 
 
 dish_df = dish_df[dish_df['id'].isin(menu_item_df["dish_id"])]
@@ -341,7 +341,7 @@ menu_item_df = menu_item_df[menu_item_df['dish_id'].isin(dish_df["id"])]
 # @IN menu @AS menu_items_valid
 # @OUT data @AS menu_items_std_date
 
-# In[12]:
+# In[22]:
 
 
 menu_item_df['created_at'] = pd.to_datetime(menu_item_df['created_at'])
@@ -353,7 +353,7 @@ menu_item_df['created_at'] = pd.to_datetime(menu_item_df['created_at'])
 # 
 # **Description:** Write the cleaned data to files.
 
-# In[13]:
+# In[23]:
 
 
 ## Write cleaned data to files
@@ -367,7 +367,7 @@ menu_item_df.to_csv("../python_cleaned/Menu-Item.csv", index=False)
 # 
 # **Rationale:** We compare and contrast the uncleaned versus the cleaned data.
 
-# In[ ]:
+# In[24]:
 
 
 dish_df_uncleaned = pd.read_csv("../open_refine_cleaned/Dish.csv")
@@ -382,13 +382,13 @@ menu_item_df_uncleaned = pd.read_csv("../open_refine_cleaned/Menu-Item.csv")
 # 
 # **Rationale:** We know that many dish names are similar/duplicates of each other, so they may be referring to the same food item, but under different dish_ids. We removed these duplicates, which would explain why the cleaned dish_df has 232,874 ids versus the uncleaned dish_df which has 423,397.
 
-# In[ ]:
+# In[25]:
 
 
 dish_df_uncleaned.info()
 
 
-# In[ ]:
+# In[26]:
 
 
 dish_df.info()
@@ -402,13 +402,13 @@ dish_df.info()
 # 
 # **Rationale:** We dropped menu items that don't have an associated dish in the dish dataset, which would explain why the cleaned menu_item_df has 846,136 ids versus the uncleaned menu_item_df which has 1,332,726 ids.
 
-# In[ ]:
+# In[27]:
 
 
 menu_item_df_uncleaned.info()
 
 
-# In[ ]:
+# In[28]:
 
 
 menu_item_df.info()
@@ -422,7 +422,7 @@ menu_item_df.info()
 # 
 # **Rationale:** In step 1.4 we removed dishes with a null price, the following test will assure that there are no dishes with missing prices.
 
-# In[ ]:
+# In[29]:
 
 
 def test_missing_dish_prices(menu_item_df):
@@ -433,7 +433,7 @@ def test_missing_dish_prices(menu_item_df):
     print('Test passed!')
 
 
-# In[ ]:
+# In[30]:
 
 
 test_missing_dish_prices(menu_item_df)
@@ -447,7 +447,7 @@ test_missing_dish_prices(menu_item_df)
 # 
 # **Rationale:** Each item on the menu needs a created at date.
 
-# In[ ]:
+# In[31]:
 
 
 def test_missing_created_dates(menu_item_df):
@@ -458,7 +458,7 @@ def test_missing_created_dates(menu_item_df):
     print('Test passed!')
 
 
-# In[ ]:
+# In[32]:
 
 
 test_missing_created_dates(menu_item_df)
@@ -472,7 +472,7 @@ test_missing_created_dates(menu_item_df)
 # 
 # **Rationale:** In order to compare dish prices over time, the dates must be in the proper format.
 
-# In[ ]:
+# In[33]:
 
 
 def test_created_at_datetime(menu_item_df):
@@ -487,13 +487,13 @@ def test_created_at_datetime(menu_item_df):
     print('Test passed!')
 
 
-# In[ ]:
+# In[34]:
 
 
 menu_item_df.head()
 
 
-# In[ ]:
+# In[35]:
 
 
 test_created_at_datetime(menu_item_df)
@@ -507,7 +507,7 @@ test_created_at_datetime(menu_item_df)
 # 
 # **Rationale:** In order to compare dishes properly, we need to remove duplicates.  We did this in step 1.6 in python.
 
-# In[ ]:
+# In[36]:
 
 
 # Test function to check for duplicate names
@@ -521,7 +521,7 @@ def test_no_duplicate_names(dish_df):
     print('Test passed!')
 
 
-# In[ ]:
+# In[37]:
 
 
 test_no_duplicate_names(dish_df)
@@ -535,7 +535,7 @@ test_no_duplicate_names(dish_df)
 # 
 # **Rationale:** In order to compare dishes properly, we need to remove duplicates.  We did this in step 1.1 with OpenRefine.
 
-# In[ ]:
+# In[38]:
 
 
 def test_no_leading_trailing_whitespace(dish_df):
@@ -549,7 +549,7 @@ def test_no_leading_trailing_whitespace(dish_df):
     print('Test passed!')
 
 
-# In[ ]:
+# In[39]:
 
 
 test_no_leading_trailing_whitespace(dish_df)
@@ -563,7 +563,7 @@ test_no_leading_trailing_whitespace(dish_df)
 # 
 # **Rationale:** In order to compare dishes properly, we need each name to be in title case.  We did this in step 1.5 in python.
 
-# In[ ]:
+# In[40]:
 
 
 def test_name_consistent_format(dish_df):
@@ -583,7 +583,7 @@ def test_name_consistent_format(dish_df):
     print('Test passed!')
 
 
-# In[ ]:
+# In[41]:
 
 
 test_name_consistent_format(dish_df)
@@ -597,7 +597,7 @@ test_name_consistent_format(dish_df)
 # 
 # **Rationale:** In order to avoid data skewing we need to remove outliers.  We removed outliers in section 1.7.
 
-# In[ ]:
+# In[42]:
 
 
 def outliers_removed(olddataframe, dataframe, column_name, multiplier=1.5):
@@ -619,19 +619,19 @@ def test_menu_item_price_outliers(old_menu_item_df, menu_item_df):
     print('test passed')
 
 
-# In[ ]:
+# In[43]:
 
 
 test_menu_item_price_outliers(menu_item_df_uncleaned, menu_item_df)
 
 
-# In[ ]:
+# In[44]:
 
 
 menu_item_df_uncleaned.price.describe()
 
 
-# In[ ]:
+# In[45]:
 
 
 menu_item_df.price.describe()
@@ -645,7 +645,7 @@ menu_item_df.price.describe()
 # 
 # **Rationale:** The price needs to be on the same scale so that each item is equally weighted.
 
-# In[ ]:
+# In[46]:
 
 
 def test_price_normalization(menu_item_df):
@@ -661,7 +661,7 @@ def test_price_normalization(menu_item_df):
     print('Test passed!')
 
 
-# In[ ]:
+# In[47]:
 
 
 test_price_normalization(menu_item_df)
@@ -669,25 +669,49 @@ test_price_normalization(menu_item_df)
 
 # ## Section 3: Work Flow Model
 
+# Data cleaning is done in 2 Phases for this project
+# 
+# Phase 1 - Basic Cleaning:
+# Tools Used: Open Refine
+# Steps: Trimming white spaces, string to number conversion, and other basic cleaning tasks are performed using Open Refine.
+# 
+# Phase 2 - Additional Cleaning:
+# Tools Used: Python
+# Steps: More advanced cleaning tasks, such as removing missing prices, outlier detection, etc., are done using Python scripts.
+# 
+# Data Lineage Documentation:
+# Tools Used: YesWorkflow (YW) and OR2YW tool
+# 
+# YesWorkflow (YW): Used to document the cleaning steps performed by the Python script. YW compatible comments are added to the Python scripts, enabling YesWorkflow to read and create a workflow diagram based on these comments.
+# 
+# OR2YW: Used to document the internal cleaning steps performed using Open Refine. OR2YW takes a cleaning history JSON file as input and generates a workflow diagram that documents all the changes applied to the dataset during the Open Refine cleaning process.
+# 
+# Overall Workflow Documentation:
+# Tool Used: YesWorkflow (YW)
+# YesWorkflow is used to document the overall workflow of the data cleaning process, providing a visual representation of how the data moves through the various cleaning phases and tools used.
+
+# In[55]:
+
+
+# reading png image file
+im = img.imread('../yesworkflow/overall_workflow.png')
+# show image
+plt.imshow(im)
+
+
 # Step 3.1
 # 
-# Yes Workflow Step: Dish Open Refine cleaning workflow
-# 
-# Description: Generate Yes Workflow for Open Refine cleaning steps performed on dish dataset
+# Workflow Step: Dish Open Refine cleaning workflow
+# Tool Used: or2yw tool
+# Description: Generates a workflow diagram that documents all the changes applied to the dish dataset during the Open Refine cleaning process.
 
-# In[7]:
+# In[48]:
 
 
 os.popen("or2yw -i dish_history.json -o ../yesworkflow/dish_openrefine_workflow.png -ot=png").read()
 
 
-# In[24]:
-
-
-os.popen("or2yw -i dishhistoryjson -o ../yesworkflow/dish_openrefine_workflow.png -ot=png").read()
-
-
-# In[8]:
+# In[ ]:
 
 
 # reading png image file
@@ -696,19 +720,24 @@ im = img.imread('../yesworkflow/dish_openrefine_workflow.png')
 plt.imshow(im)
 
 
-# Step 3.2
-# 
-# Yes Workflow Step: Menu Item Open Refine cleaning workflow
-# 
-# Description: Generate Yes Workflow for Open Refine cleaning steps performed on menu_item dataset
+# In[ ]:
 
-# In[9]:
+
+Step 3.2
+
+Workflow Step: Menu Item Open Refine cleaning workflow
+
+Tool Used: or2yw tool
+Description: Generates a workflow diagram that documents all the changes applied to the menu_item dataset during the Open Refine cleaning process.
+
+
+# In[50]:
 
 
 os.popen("or2yw -i menu_item_history.json -o ../yesworkflow/menu_item_workflow.png -ot=png").read()
 
 
-# In[10]:
+# In[51]:
 
 
 # reading png image file
@@ -717,24 +746,41 @@ im = img.imread('../yesworkflow/menu_item_workflow.png')
 plt.imshow(im)
 
 
-# In[27]:
+# Step 3.2
+# 
+# Workflow Step: Final Cleaning workflow for Dish and Menu Item 
+# Tool Used: YesWorkflow
+# Description: Generate Yes Workflow for python cleaning steps performed on dish and menu_item dataset
+
+# In[53]:
 
 
-os.popen("or2yw -i data_cleaning_phase_II.ipynb -o ../yesworkflow/data_cleaning_phase2.png -ot=png").read()
+os.popen("java -jar yesworkflow-0.2.0-jar-with-dependencies.jar graph data_cleaning_phase_II.py | dot -Tpng -o ../yesworkflow/dish_menu_clean_workflow.png").read()
 
 
-# In[ ]:
+# In[54]:
 
 
-
+# reading png image file
+im = img.imread('../yesworkflow/dish_menu_clean_workflow.png')
+# show image
+plt.imshow(im)
 
 
 # ## Section 4: Conclusion
 
-# In[ ]:
-
-
-
-
+# In Phase II of the project, we focused on data cleaning to address the data quality problems identified in the dataset. We successfully executed test cases to ensure the data is clean and ready for analysis in the main use case - Dish Price Analysis (U1). The initial data quality problems related to missing data, dirty data, key constraints, and duplicates/similarities were addressed using various data cleaning techniques.
+# 
+# For the main use case, we specifically focused on data related to dish prices, including the 'price', 'highest price', 'lowest price', and 'created at' fields. We ensured that the dataset has no missing dish prices, no NULL values in any columns, and outliers were removed. Additionally, we standardized data formats to ensure consistency, trimmed leading and trailing whitespaces from dish names, and removed duplicate dish names.
+# 
+# Through this comprehensive data cleaning process, we have enhanced the quality of the dataset, ensuring it is accurate, reliable, and suitable for the Dish Price Analysis (U1) use case. This allows us to proceed with further data analysis and gain valuable insights into historical changes in dish prices over time. The clean and structured dataset will enable us to provide meaningful recommendations.
+# 
+# In phase 2 the team made the following contributions:
+# 
+# - Section 1 - Mohammed
+# - Section 2 - David
+# - Section 3 - Jhansi
+# - Section 4 - All
+# 
 
 # @END main
